@@ -1,0 +1,16 @@
+body {
+  margin: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: lightblue;
+}
+
+
+h1 {
+    color: rgb(201, 102, 163);
+}
+
+button {
+    margin: 0;
+    background-color: rgb(201, 102, 163);
+}
