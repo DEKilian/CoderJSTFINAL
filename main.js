@@ -41,11 +41,10 @@ let florSeleccionada = null;
 const app = document.getElementById("app");
 
 function actualizarTotal() {
-    inputTotal.value = total;
+    inputTotal.value = total.toLocaleString();
     localStorage.setItem("total", total);
 }
 
-/* TITULOS */
 const titulo = document.createElement("h1");
 titulo.textContent = "Flores del Mar";
 app.appendChild(titulo);
@@ -54,7 +53,6 @@ const subtituloFlores = document.createElement("h2");
 subtituloFlores.textContent = "Por favor, complete los pasos en orden para generar su pedido:";
 app.appendChild(subtituloFlores);
 
-/* SELECCION DE FLORES */
 const subtituloCompra = document.createElement("h3");
 subtituloCompra.textContent = "1) Seleccione la flor que desea para su ramo:";
 app.appendChild(subtituloCompra);
@@ -81,12 +79,10 @@ flores.forEach(flor => {
     contenedorFlores.appendChild(botonSeleccionador);
 });
 
-/* TIPO DE RAMO */
 const subtituloRamo = document.createElement("h3");
 subtituloRamo.textContent = "2) Indique qué ramo desea armar:";
 app.appendChild(subtituloRamo);
 
-/* MEDIA DOCENA */
 const btnMedia = document.createElement("button");
 btnMedia.textContent = "Media docena (6)";
 btnMedia.addEventListener("click", () => {
@@ -111,7 +107,6 @@ btnMedia.addEventListener("click", () => {
 });
 app.appendChild(btnMedia);
 
-/* DOCENA */
 const btnDocena = document.createElement("button");
 btnDocena.textContent = "Docena (12)";
 btnDocena.addEventListener("click", () => {
@@ -136,7 +131,6 @@ btnDocena.addEventListener("click", () => {
 });
 app.appendChild(btnDocena);
 
-/* TOTAL */
 const totalActual = document.createElement("h3");
 totalActual.textContent = "Total actual:";
 app.appendChild(totalActual);
@@ -147,7 +141,6 @@ inputTotal.readOnly = true;
 inputTotal.value = total;
 app.appendChild(inputTotal);
 
-/* REINICIAR CARRITO */
 const btnReiniciar = document.createElement("button");
 btnReiniciar.textContent = "Reiniciar carrito";
 
@@ -174,3 +167,53 @@ btnReiniciar.addEventListener("click", () => {
     });
 });
 app.appendChild(btnReiniciar);
+
+const btnFinalizar = document.createElement("button");
+btnFinalizar.textContent = "Finalizar compra";
+
+btnFinalizar.addEventListener("click", () => {
+    if (total === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Carrito vacío',
+            text: 'No hay productos en el carrito para finalizar la compra'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: '¿Desea finalizar la compra?',
+        html: `<strong>Total a pagar:</strong> $${total}`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Confirmar compra',
+        cancelButtonText: 'Cancelar compra'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Mostramos alerta de "procesando" mientras esperamos 2 segundos
+            Swal.fire({
+                title: 'Procesando tu compra...',
+                text: 'Por favor espera un momento',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading(); // Animación de carga
+                }
+            });
+
+            setTimeout(() => {
+                Swal.close(); // Cerramos la alerta de carga
+
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Compra realizada!',
+                    text: 'Gracias por comprar con nosotros, vuelva pronto!'
+                });
+
+                total = 0;
+                localStorage.setItem("total", 0);
+                actualizarTotal();
+            }, 2000); // 2 segundos
+        }
+    });
+});
+app.appendChild(btnFinalizar);
