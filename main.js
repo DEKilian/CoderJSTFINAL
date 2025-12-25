@@ -38,6 +38,14 @@ const unadocena = (precio) => precio * 12;
 let total = Number(localStorage.getItem("total")) || 0;
 let florSeleccionada = null;
 
+const codigos = {
+    brisa: 0.05,
+    florero: 0.10,
+    oculto: 0.25
+};
+
+let descuentosUsados = [];
+
 const app = document.getElementById("app");
 
 function actualizarTotal() {
@@ -171,6 +179,53 @@ app.appendChild(btnReiniciar);
 const btnFinalizar = document.createElement("button");
 btnFinalizar.textContent = "Finalizar compra";
 
+const btnDescuento = document.createElement("button");
+btnDescuento.textContent = "Ingresar código de descuento";
+
+btnDescuento.addEventListener("click", () => {
+
+    if (descuentosUsados.length > 0) {
+        Swal.fire("Descuento ya aplicado", "Solo se permite un código por compra", "info");
+        return;
+    }
+
+    if (total <= 6000) {
+        Swal.fire("Monto insuficiente", "El total debe ser mayor a $6000", "warning");
+        return;
+    }
+
+    Swal.fire({
+        title: "Ingrese su código",
+        input: "text",
+        showCancelButton: true
+    }).then(result => {
+
+        if (!result.isConfirmed) return;
+
+        const codigo = result.value.toLowerCase();
+
+        if (!codigos[codigo]) {
+            Swal.fire("Código inválido", "El código ingresado no es válido", "error");
+            return;
+        }
+
+        const porcentaje = codigos[codigo];
+        total -= total * porcentaje;
+
+        descuentosUsados.push(codigo);
+
+        actualizarTotal();
+
+        Swal.fire(
+            "Descuento aplicado",
+            `Se aplicó un ${porcentaje * 100}% de descuento`,
+            "success"
+        );
+    });
+});
+
+app.appendChild(btnDescuento);
+
 btnFinalizar.addEventListener("click", () => {
     if (total === 0) {
         Swal.fire({
@@ -190,19 +245,18 @@ btnFinalizar.addEventListener("click", () => {
         cancelButtonText: 'Cancelar compra'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Mostramos alerta de "procesando" mientras esperamos 2 segundos
+          
             Swal.fire({
                 title: 'Procesando tu compra...',
                 text: 'Por favor espera un momento',
                 allowOutsideClick: false,
                 didOpen: () => {
-                    Swal.showLoading(); // Animación de carga
+                    Swal.showLoading(); 
                 }
             });
 
             setTimeout(() => {
-                Swal.close(); // Cerramos la alerta de carga
-
+                Swal.close(); 
                 Swal.fire({
                     icon: 'success',
                     title: '¡Compra realizada!',
@@ -212,7 +266,7 @@ btnFinalizar.addEventListener("click", () => {
                 total = 0;
                 localStorage.setItem("total", 0);
                 actualizarTotal();
-            }, 2000); // 2 segundos
+            }, 2000); 
         }
     });
 });
